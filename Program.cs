@@ -11,14 +11,14 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();     // Extensión personalizada
 builder.Services.AddSwaggerGen();  // Swagger de Swashbuckle
 
-// ?? Cadena de conexión directamente en el código
+// Configurar DbContext con cadena de conexión
 builder.Services.AddDbContext<ContextoLibreria>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configurar CORS para permitir TODO
+// Configurar CORS - CORREGIDO para que se llame igual que en UseCors
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("PermitirReact", policy =>
     {
         policy.AllowAnyOrigin()
               .AllowAnyMethod()
@@ -26,25 +26,24 @@ builder.Services.AddCors(options =>
     });
 });
 
-
-// Servicios personalizados (como validadores, etc.)
+// Servicios personalizados
 builder.Services.AddCustonServices(builder.Configuration);
 
 var app = builder.Build();
 
-// Swagger solo en entorno de desarrollo
-//if (app.Environment.IsDevelopment())
-//{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    app.MapOpenApi(); // OpenAPI personalizado
-//}
+// Swagger
+app.UseSwagger();
+app.UseSwaggerUI();
+app.MapOpenApi(); // OpenAPI personalizado
 
-// Habilitar CORS
+// Habilitar CORS correctamente
 app.UseCors("PermitirReact");
 
+// Redirección HTTPS (puedes comentarlo si no lo usas en desarrollo)
 app.UseHttpsRedirection();
+
 app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();
